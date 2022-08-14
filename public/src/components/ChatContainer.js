@@ -49,8 +49,10 @@ export default function ChatContainer({ currentChat, socket }) {
 
         socket.current.on('disconnect', (reason) => {
             console.log(reason, 'this is err from chatContainer');
-            localStorage.removeItem('token');
-            navigate('login');
+            if (reason === 'io server disconnect') {
+                localStorage.removeItem('token');
+                navigate('/login');
+            }
         });
     }, [currentChat]);
 
