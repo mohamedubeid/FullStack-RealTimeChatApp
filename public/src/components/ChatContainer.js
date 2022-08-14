@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChatInput from './ChatInput';
 import Logout from './Logout';
 import axios from 'axios';
-import { recieveMessageRoute } from '../utils/APIRoutes';
+import { receiveMessageRoute } from '../utils/APIRoutes';
 import { useNavigate } from 'react-router-dom';
 
 export default function ChatContainer({ currentChat, socket }) {
@@ -14,10 +14,10 @@ export default function ChatContainer({ currentChat, socket }) {
     const token = localStorage.getItem('token');
 
     useEffect(() => {
-        async function reciveMsg() {
+        async function receiveMsg() {
             try {
                 const response = await axios.post(
-                    recieveMessageRoute,
+                    receiveMessageRoute,
                     {
                         to: currentChat._id,
                     },
@@ -37,7 +37,7 @@ export default function ChatContainer({ currentChat, socket }) {
                 }
             }
         }
-        reciveMsg();
+        receiveMsg();
     }, [currentChat]);
 
     useEffect(() => {
@@ -46,14 +46,19 @@ export default function ChatContainer({ currentChat, socket }) {
                 setArrivalMessage({ fromSelf: false, message });
             }
         });
-    }, []);
+
+        socket.current.on('disconnect', (reason) => {
+            console.log(reason, 'this is err from chatContainer');
+            localStorage.removeItem('token');
+            navigate('login');
+        });
+    }, [currentChat]);
 
     useEffect(() => {
         arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
     }, [arrivalMessage]);
 
     const handleSendMsg = async (msg) => {
-        socket.current.token = token;
         socket.current.emit('send-msg', {
             to: currentChat._id,
             message: msg,
@@ -80,7 +85,7 @@ export default function ChatContainer({ currentChat, socket }) {
                         <h3>{currentChat.username}</h3>
                     </div>
                 </div>
-                <Logout />
+                <Logout socket={socket} />
             </div>
             <div className="chat-messages">
                 {messages.map((message, i) => {

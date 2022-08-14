@@ -1,13 +1,14 @@
-const Message = require('../models/messageModel');
+const Message = require('../../models/messageModel');
 const mongoose = require('mongoose');
 
-module.exports = (socket) => {
-    const sendMessage = async (data) => {
-        console.log(onlineUsers, 'online uses');
-        const to = mongoose.Types.ObjectId(data.to);
-        const from = socket.userId;
-        const message = data.message;
+module.exports = async function (data) {
+    console.log(onlineUsers, 'this is onlineUsers from socketListeners');
+    const socket = this;
+    const to = mongoose.Types.ObjectId(data.to);
+    const from = socket.userId;
+    const message = data.message;
 
+    try {
         await Message.create({
             message: { text: message },
             users: [from, to],
@@ -29,9 +30,9 @@ module.exports = (socket) => {
         if (sendUserSocket) {
             socket
                 .to(sendUserSocket + '')
-                .emit('msg-receive', { message, from }); //need to add from
+                .emit('msg-receive', { message, from });
         }
-    };
-    socket.on('test', () => console.log('this is test socket.id:', socket.id));
-    socket.on('send-msg', sendMessage);
+    } catch (error) {
+        console.log(error, 'error');
+    }
 };

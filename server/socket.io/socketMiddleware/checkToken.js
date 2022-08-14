@@ -12,7 +12,7 @@ module.exports = async (socket, next) => {
             socket.userId = userId;
             next();
         } else {
-            next(new Error('user not auth'));
+            throw 'user does not auth';
         }
     } catch (error) {
         console.log(error);

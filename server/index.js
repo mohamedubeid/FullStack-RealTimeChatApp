@@ -15,10 +15,10 @@ const io = socket(httpServer, {
         credentials: true,
     },
 });
-const connectionMiddleware = require('./socket.io/socketMiddleware/connectionMiddleware');
+const checkToken = require('./socket.io/socketMiddleware/checkToken');
 const onConnection = require('./socket.io/socketConnection');
 
-io.use(connectionMiddleware);
+io.use(checkToken);
 io.on('connection', onConnection);
 
 app.use(cors());

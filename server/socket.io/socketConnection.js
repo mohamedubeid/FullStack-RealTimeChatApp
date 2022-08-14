@@ -1,11 +1,20 @@
-const socketListeners = require('./socketListeners');
-const socketMiddleware = require('./socketMiddleware/socketMiddleware');
+const checkUserMiddleware = require('./socketMiddleware/checkUser');
+const {
+    sendMessage,
+    socketDisconnect,
+    errorHandler,
+} = require('./socketHandler/index');
 
 global.onlineUsers = new Map();
 const onConnection = (socket) => {
-    // socketMiddleware(socket);
+    checkUserMiddleware(socket);
     onlineUsers.set(socket.userId.toString(), socket.id);
+
     console.log('connection', onlineUsers);
-    socketListeners(socket);
+
+    socket.on('test', () => console.log('this is test socket.id:', socket.id));
+    socket.on('send-msg', sendMessage);
+    socket.on('disconnect', socketDisconnect);
+    socket.on('error', errorHandler);
 };
 module.exports = onConnection;

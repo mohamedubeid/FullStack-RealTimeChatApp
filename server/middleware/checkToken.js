@@ -13,10 +13,6 @@ const checkToken = async (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
         const userId = await isTokenValid(token + '');
-        console.log(
-            userId,
-            'userIduserIduserIduserIduserIduserIduserIduserIduserId'
-        );
         if (!userId) {
             throw 'error';
         }
