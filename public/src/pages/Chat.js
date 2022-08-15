@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { allUsersRoute, host } from '../utils/APIRoutes';
+import { allUsersRoute, host, getUserRooms } from '../utils/APIRoutes';
 import Contacts from '../components/Contacts';
 import Welcome from '../components/Welcome';
 import ChatContainer from '../components/ChatContainer';
@@ -15,6 +15,7 @@ function Chat() {
     const chatAppUser = JSON.parse(localStorage.getItem('chat-app-user'));
 
     const [contacts, setContacts] = useState([]);
+    const [rooms, setRooms] = useState([]);
     const [currentChat, setCurrentChat] = useState();
 
     useEffect(() => {
@@ -41,6 +42,23 @@ function Chat() {
             }
         }
 
+        async function getRooms() {
+            try {
+                const data = await axios.get(`${getUserRooms}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setRooms(data.data);
+            } catch (error) {
+                if (error.response.status) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('chat-app-user');
+                    navigate('/login');
+                }
+            }
+        }
+        getRooms();
         getContacts();
     }, []);
     useEffect(() => {
@@ -59,6 +77,7 @@ function Chat() {
             <div className="container">
                 <Contacts
                     contacts={contacts}
+                    rooms={rooms}
                     chatAppUser={chatAppUser}
                     changeChat={handleChatChange}
                 />

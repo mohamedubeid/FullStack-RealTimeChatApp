@@ -1,12 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Logo from '../assets/logo.svg';
+import axios from 'axios';
+import { joinRoom } from '../utils/APIRoutes';
 
-export default function Contacts({ contacts, chatAppUser, changeChat }) {
+export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
     const [currentSelected, setCurrentSelected] = useState();
+    const [room, setRoom] = useState('');
+    const token = localStorage.getItem('token');
+
     const changeCurrentChat = (index, contact) => {
         setCurrentSelected(index);
         changeChat(contact);
+    };
+    const handleChange = (event) => {
+        event.preventDefault();
+        setRoom(event.target.value);
+    };
+    const handleSubmit = async () => {
+        try {
+            await axios.post(
+                joinRoom,
+                {
+                    room,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            setRoom('');
+        } catch (error) {
+            console.log(error);
+        }
     };
     return (
         <>
@@ -17,6 +44,20 @@ export default function Contacts({ contacts, chatAppUser, changeChat }) {
                         <h3>snappy</h3>
                     </div>
                     <div className="contacts">
+                        <div className="input">
+                            <input
+                                value={room}
+                                type="text"
+                                placeholder="Enter Room Name"
+                                name="room"
+                                onChange={(e) => handleChange(e)}
+                                min="3"
+                                className="enter_group"
+                            />
+                            <button onClick={() => handleSubmit()}>
+                                Join Room
+                            </button>
+                        </div>
                         {contacts.map((contact, index) => {
                             return (
                                 <div
@@ -38,6 +79,35 @@ export default function Contacts({ contacts, chatAppUser, changeChat }) {
                                     </div>
                                     <div className="username">
                                         <h3>{contact.username}</h3>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {rooms.map((room, index) => {
+                            return (
+                                <div
+                                    className={`contact ${
+                                        index + contacts.length ===
+                                        currentSelected
+                                            ? 'selected'
+                                            : ''
+                                    }`}
+                                    key={index + contacts.length}
+                                    onClick={() =>
+                                        changeCurrentChat(
+                                            index + contacts.length,
+                                            room
+                                        )
+                                    }
+                                >
+                                    <div className="avatar">
+                                        <img
+                                            src={`roomImage.jpg`}
+                                            alt="avatar"
+                                        />
+                                    </div>
+                                    <div className="username">
+                                        <h3>{room.room}</h3>
                                     </div>
                                 </div>
                             );
@@ -110,6 +180,35 @@ const Container = styled.div`
             .username {
                 h3 {
                     color: white;
+                }
+            }
+        }
+        .input {
+            .enter_group {
+                background-color: transparent;
+                padding: 1rem;
+                border: 0.1rem solid #4e0eff;
+                border-radius: 0.4rem;
+                color: white;
+                width: 100%;
+                font-size: 1rem;
+                &:focus {
+                    border: 0.1rem solid #997af0;
+                    outline: none;
+                }
+            }
+            button {
+                background-color: #4e0eff;
+                color: white;
+                padding: 1rem 2rem;
+                border: none;
+                font-weight: bold;
+                cursor: pointer;
+                border-radius: 0.4rem;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                &:hover {
+                    background-color: #4e0eff;
                 }
             }
         }
