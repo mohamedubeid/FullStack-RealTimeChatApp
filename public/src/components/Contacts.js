@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Logo from '../assets/logo.svg';
 import axios from 'axios';
@@ -6,6 +6,11 @@ import { joinRoom } from '../utils/APIRoutes';
 
 export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
     const [currentSelected, setCurrentSelected] = useState();
+    const [roomList, setRoomList] = useState([]);
+    useEffect(() => {
+        setRoomList(rooms);
+    }, [rooms]);
+
     const [room, setRoom] = useState('');
     const token = localStorage.getItem('token');
 
@@ -34,6 +39,8 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
         } catch (error) {
             console.log(error);
         }
+        const newRoomList = [...rooms, { roomId: { room: room } }];
+        setRoomList(newRoomList);
     };
     return (
         <>
@@ -83,7 +90,7 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
                                 </div>
                             );
                         })}
-                        {rooms.map((room, index) => {
+                        {roomList.map((room, index) => {
                             return (
                                 <div
                                     className={`contact ${
@@ -96,7 +103,7 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
                                     onClick={() =>
                                         changeCurrentChat(
                                             index + contacts.length,
-                                            room
+                                            { ...room, _id: room.roomId._id }
                                         )
                                     }
                                 >
@@ -107,7 +114,7 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
                                         />
                                     </div>
                                     <div className="username">
-                                        <h3>{room.room}</h3>
+                                        <h3>{room.roomId.room}</h3>
                                     </div>
                                 </div>
                             );

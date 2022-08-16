@@ -3,6 +3,7 @@ const {
     sendMessage,
     socketDisconnect,
     errorHandler,
+    sendRoomMessage,
 } = require('./socketHandler/index');
 
 global.onlineUsers = new Map();
@@ -14,6 +15,7 @@ const onConnection = (socket) => {
 
     socket.on('test', () => console.log('this is test socket.id:', socket.id));
     socket.on('send-msg', sendMessage);
+    socket.on('send-room-msg', sendRoomMessage); ////////
     socket.on('disconnect', socketDisconnect);
     socket.on('error', errorHandler);
 };

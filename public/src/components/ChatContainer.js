@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChatInput from './ChatInput';
 import Logout from './Logout';
 import axios from 'axios';
-import { receiveMessageRoute } from '../utils/APIRoutes';
+import { receiveMessageRoute, getRoomMessages } from '../utils/APIRoutes';
 import { useNavigate } from 'react-router-dom';
 
 export default function ChatContainer({ currentChat, socket }) {
@@ -12,12 +12,14 @@ export default function ChatContainer({ currentChat, socket }) {
     const [arrivalMessage, setArrivalMessage] = useState();
     const scrollRef = useRef();
     const token = localStorage.getItem('token');
-
     useEffect(() => {
         async function receiveMsg() {
+            const apiRoute = currentChat.roomId
+                ? getRoomMessages
+                : receiveMessageRoute;
             try {
                 const response = await axios.post(
-                    receiveMessageRoute,
+                    apiRoute,
                     {
                         to: currentChat._id,
                     },

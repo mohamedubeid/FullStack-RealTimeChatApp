@@ -6,7 +6,7 @@ const roomUsersSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
-        roomId: mongoose.Schema.Types.ObjectId,
+        roomId: { type: mongoose.Schema.Types.ObjectId, ref: 'Rooms' },
     },
     {
         timestamps: true,
