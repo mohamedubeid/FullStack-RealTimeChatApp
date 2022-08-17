@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { allUsersRoute, host, getUserRooms } from '../utils/APIRoutes';
+import { allUsersRoute, host, getUserRoomsRoute } from '../utils/APIRoutes';
 import Contacts from '../components/Contacts';
 import Welcome from '../components/Welcome';
 import ChatContainer from '../components/ChatContainer';
@@ -44,7 +44,7 @@ function Chat() {
 
         async function getRooms() {
             try {
-                const data = await axios.get(`${getUserRooms}`, {
+                const data = await axios.get(`${getUserRoomsRoute}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -90,7 +90,6 @@ function Chat() {
         </Container>
     );
 }
-
 const Container = styled.div`
     height: 100vh;
     width: 100vw;

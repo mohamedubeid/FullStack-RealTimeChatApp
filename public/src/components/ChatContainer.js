@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import ChatInput from './ChatInput';
 import Logout from './Logout';
 import axios from 'axios';
-import { receiveMessageRoute, getRoomMessages } from '../utils/APIRoutes';
+import { getUserMessagesRoute, getRoomMessagesRoute } from '../utils/APIRoutes';
 import { useNavigate } from 'react-router-dom';
 
 export default function ChatContainer({ currentChat, socket }) {
@@ -14,12 +14,12 @@ export default function ChatContainer({ currentChat, socket }) {
     const token = localStorage.getItem('token');
     useEffect(() => {
         async function receiveMsg() {
-            const apiRoute = currentChat.roomId
-                ? getRoomMessages
-                : receiveMessageRoute;
+            const getMessages = currentChat.roomId
+                ? getRoomMessagesRoute
+                : getUserMessagesRoute;
             try {
                 const response = await axios.post(
-                    apiRoute,
+                    getMessages,
                     {
                         to: currentChat._id,
                     },
@@ -43,8 +43,22 @@ export default function ChatContainer({ currentChat, socket }) {
     }, [currentChat]);
 
     useEffect(() => {
-        socket.current.on('msg-receive', ({ message, from }) => {
-            if (from === currentChat._id) {
+        console.log(
+            'this is currentChat in receive message userEffect',
+            currentChat
+        );
+        socket.current.on('msg-receive', ({ message, sender }) => {
+            const current = JSON.parse(localStorage.getItem('currentChat'));
+            console.log(
+                'from: ',
+                sender,
+                'message: ',
+                message,
+                ' currentChat._id: ',
+                current._id
+            );
+            console.log('*********************');
+            if (sender === current._id) {
                 setArrivalMessage({ fromSelf: false, message });
             }
         });
@@ -63,10 +77,16 @@ export default function ChatContainer({ currentChat, socket }) {
     }, [arrivalMessage]);
 
     const handleSendMsg = async (msg) => {
-        socket.current.emit('send-msg', {
-            to: currentChat._id,
-            message: msg,
-        });
+        currentChat.roomId
+            ? socket.current.emit('send-room-msg', {
+                  to: currentChat._id,
+                  message: msg,
+                  room: currentChat.roomId.room,
+              })
+            : socket.current.emit('send-msg', {
+                  to: currentChat._id,
+                  message: msg,
+              });
 
         const msgs = [...messages];
         msgs.push({ fromSelf: true, message: msg });
@@ -90,7 +110,9 @@ export default function ChatContainer({ currentChat, socket }) {
                         />
                     </div>
                     <div className="username">
-                        <h3>{currentChat.username || currentChat.room}</h3>
+                        <h3>
+                            {currentChat.username || currentChat.roomId.room}
+                        </h3>
                     </div>
                 </div>
                 <Logout socket={socket} />

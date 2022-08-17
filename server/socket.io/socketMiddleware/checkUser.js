@@ -2,7 +2,6 @@ const User = require('../../models/userModel');
 module.exports = (socket) => {
     socket.use(async ([event, ...args], next) => {
         try {
-            console.log('this is checkUSer middleware0000000000000');
             const userId = socket.userId;
             const checkUser = await User.countDocuments({
                 _id: userId,

@@ -17,6 +17,7 @@ export default function Contacts({
 
     const [room, setRoom] = useState('');
     const changeCurrentChat = (index, contact) => {
+        localStorage.setItem('currentChat', JSON.stringify(contact));
         setCurrentSelected(index);
         changeChat(contact);
     };

@@ -25,7 +25,7 @@ const onConnection = async (socket) => {
 
     socket.on('send-msg', sendMessage);
     socket.on('join-room', joinRoom);
-    // socket.on('send-room-msg', sendRoomMessage); ////////
+    socket.on('send-room-msg', sendRoomMessage);
     socket.on('disconnect', socketDisconnect);
     socket.on('error', errorHandler);
 };
