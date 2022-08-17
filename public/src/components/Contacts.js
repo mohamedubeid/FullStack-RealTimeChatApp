@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Logo from '../assets/logo.svg';
-import axios from 'axios';
-import { joinRoom } from '../utils/APIRoutes';
 
-export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
+export default function Contacts({
+    contacts,
+    rooms,
+    chatAppUser,
+    changeChat,
+    socket,
+}) {
     const [currentSelected, setCurrentSelected] = useState();
     const [roomList, setRoomList] = useState([]);
     useEffect(() => {
@@ -12,8 +16,6 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
     }, [rooms]);
 
     const [room, setRoom] = useState('');
-    const token = localStorage.getItem('token');
-
     const changeCurrentChat = (index, contact) => {
         setCurrentSelected(index);
         changeChat(contact);
@@ -24,23 +26,13 @@ export default function Contacts({ contacts, rooms, chatAppUser, changeChat }) {
     };
     const handleSubmit = async () => {
         try {
-            await axios.post(
-                joinRoom,
-                {
-                    room,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            socket.current.emit('join-room', room);
+            const newRoomList = [...rooms, { roomId: { room: room } }];
+            setRoomList(newRoomList);
             setRoom('');
         } catch (error) {
             console.log(error);
         }
-        const newRoomList = [...rooms, { roomId: { room: room } }];
-        setRoomList(newRoomList);
     };
     return (
         <>

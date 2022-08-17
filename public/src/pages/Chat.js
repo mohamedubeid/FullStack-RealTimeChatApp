@@ -65,7 +65,6 @@ function Chat() {
         socket.current = io(host, { autoConnect: false });
         socket.current.auth = { token };
         socket.current.connect();
-        socket.current.emit('test');
     }, []);
 
     const handleChatChange = (chat) => {
@@ -80,6 +79,7 @@ function Chat() {
                     rooms={rooms}
                     chatAppUser={chatAppUser}
                     changeChat={handleChatChange}
+                    socket={socket}
                 />
                 {currentChat ? (
                     <ChatContainer currentChat={currentChat} socket={socket} />
