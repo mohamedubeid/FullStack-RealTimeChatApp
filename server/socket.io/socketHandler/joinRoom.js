@@ -1,7 +1,6 @@
 const Message = require('../../models/messageModel');
 const Room = require('../../models/roomModel');
 const roomUsers = require('../../models/roomUsersModel');
-const mongoose = require('mongoose');
 
 module.exports = async function (room) {
     const socket = this;

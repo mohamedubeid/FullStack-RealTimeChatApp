@@ -23,11 +23,14 @@ module.exports.getRoomMessages = async (req, res, next) => {
             users: {
                 $all: [mongoose.Types.ObjectId(to)],
             },
-        }).sort({ updatedAt: 1 });
+        })
+            .populate({ path: 'sender', select: 'username' })
+            .sort({ updatedAt: 1 });
         const roomMessages = messages.map((msg) => {
             return {
-                fromSelf: msg.sender.toString() === from.toString(),
+                fromSelf: msg.sender._id.toString() === from.toString(),
                 message: msg.message.text,
+                sender: msg.sender.username,
             };
         });
         res.json(roomMessages);

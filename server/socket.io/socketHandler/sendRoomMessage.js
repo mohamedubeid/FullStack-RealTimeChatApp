@@ -7,6 +7,7 @@ module.exports = async function (data) {
     const from = socket.userId;
     const message = data.message;
     const room = data.room;
+    const senderUsername = data.sender;
     try {
         await Message.create({
             message: { text: message },
@@ -25,7 +26,9 @@ module.exports = async function (data) {
             message
         );
         const sender = data.to;
-        socket.to(room).emit('msg-receive', { message, sender });
+        socket
+            .to(room)
+            .emit('msg-receive', { message, sender, senderUsername });
     } catch (error) {
         console.log(error, 'error');
     }

@@ -12,6 +12,8 @@ export default function ChatContainer({ currentChat, socket }) {
     const [arrivalMessage, setArrivalMessage] = useState();
     const scrollRef = useRef();
     const token = localStorage.getItem('token');
+    const chatAppUser = JSON.parse(localStorage.getItem('chat-app-user'));
+
     useEffect(() => {
         async function receiveMsg() {
             const getMessages = currentChat.roomId
@@ -47,21 +49,27 @@ export default function ChatContainer({ currentChat, socket }) {
             'this is currentChat in receive message userEffect',
             currentChat
         );
-        socket.current.on('msg-receive', ({ message, sender }) => {
-            const current = JSON.parse(localStorage.getItem('currentChat'));
-            console.log(
-                'from: ',
-                sender,
-                'message: ',
-                message,
-                ' currentChat._id: ',
-                current._id
-            );
-            console.log('*********************');
-            if (sender === current._id) {
-                setArrivalMessage({ fromSelf: false, message });
+        socket.current.on(
+            'msg-receive',
+            ({ message, sender, senderUsername }) => {
+                const current = JSON.parse(localStorage.getItem('currentChat'));
+                console.log(
+                    'from: ',
+                    sender,
+                    'message: ',
+                    message,
+                    ' currentChat._id: ',
+                    current._id
+                );
+                if (sender === current._id) {
+                    setArrivalMessage({
+                        fromSelf: false,
+                        message,
+                        sender: senderUsername,
+                    });
+                }
             }
-        });
+        );
 
         socket.current.on('disconnect', (reason) => {
             console.log(reason, 'this is err from chatContainer');
@@ -82,6 +90,7 @@ export default function ChatContainer({ currentChat, socket }) {
                   to: currentChat._id,
                   message: msg,
                   room: currentChat.roomId.room,
+                  sender: chatAppUser.username,
               })
             : socket.current.emit('send-msg', {
                   to: currentChat._id,
@@ -95,6 +104,9 @@ export default function ChatContainer({ currentChat, socket }) {
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+    const handleLeaveRoom = () => {
+        console.log('leaveRoom');
+    };
     return (
         <Container>
             <div className="chat-header">
@@ -115,6 +127,7 @@ export default function ChatContainer({ currentChat, socket }) {
                         </h3>
                     </div>
                 </div>
+                <button onClick={handleLeaveRoom}>Leave Room</button>
                 <Logout socket={socket} />
             </div>
             <div className="chat-messages">
@@ -126,6 +139,11 @@ export default function ChatContainer({ currentChat, socket }) {
                                     message.fromSelf ? 'sended' : 'recieved'
                                 }`}
                             >
+                                <span>
+                                    {' '}
+                                    {chatAppUser.username !== message?.sender &&
+                                        message?.sender}
+                                </span>
                                 <div className="content ">
                                     <p>{message.message}</p>
                                 </div>
@@ -168,9 +186,14 @@ const Container = styled.div`
                 }
             }
         }
+        button {
+            padding: 10px;
+            cursor: pointer;
+        }
     }
     .chat-messages {
         padding: 1rem 2rem;
+        color: white;
         display: flex;
         flex-direction: column;
         gap: 1rem;

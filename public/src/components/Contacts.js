@@ -27,10 +27,12 @@ export default function Contacts({
     };
     const handleSubmit = async () => {
         try {
-            socket.current.emit('join-room', room);
-            const newRoomList = [...rooms, { roomId: { room: room } }];
-            setRoomList(newRoomList);
-            setRoom('');
+            if (room !== '') {
+                socket.current.emit('join-room', room);
+                const newRoomList = [...rooms, { roomId: { room: room } }];
+                setRoomList(newRoomList);
+                setRoom('');
+            }
         } catch (error) {
             console.log(error);
         }
