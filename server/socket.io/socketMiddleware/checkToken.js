@@ -2,7 +2,6 @@ const { isTokenValid } = require('../../utils/isTokenValid');
 
 module.exports = async (socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log('connection middleware');
     try {
         if (token) {
             const userId = await isTokenValid(token);

@@ -14,17 +14,6 @@ module.exports = async function (data) {
             users: [to],
             sender: from,
         });
-        console.log(
-            'this is roooooom  sender',
-            from,
-            'sender socket id',
-            socket.id,
-            'receiver',
-            to,
-            'receiver socket id',
-            'msg',
-            message
-        );
         const sender = data.to;
         socket
             .to(room)

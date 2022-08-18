@@ -71,6 +71,13 @@ function Chat() {
         setCurrentChat(chat);
     };
 
+    const removeRoom = (deletedRoomId) => {
+        const newRooms = rooms.filter((room) => room._id !== deletedRoomId);
+        setRooms(newRooms);
+        setCurrentChat(null);
+        localStorage.removeItem('currentChat');
+    };
+
     return (
         <Container>
             <div className="container">
@@ -82,7 +89,11 @@ function Chat() {
                     socket={socket}
                 />
                 {currentChat ? (
-                    <ChatContainer currentChat={currentChat} socket={socket} />
+                    <ChatContainer
+                        currentChat={currentChat}
+                        socket={socket}
+                        removeRoom={removeRoom}
+                    />
                 ) : (
                     <Welcome />
                 )}

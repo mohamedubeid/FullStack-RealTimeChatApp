@@ -17,18 +17,25 @@ module.exports.getUserRooms = async (req, res, next) => {
 
 module.exports.getRoomMessages = async (req, res, next) => {
     try {
-        const from = req.userId;
-        const { to } = req.body;
+        const userId = req.userId;
+        const roomId = mongoose.Types.ObjectId(req.body.to);
+        const userJoinedDate = await roomUsers
+            .findOne({
+                roomId,
+                userId,
+            })
+            .select('createdAt');
         const messages = await Message.find({
             users: {
-                $all: [mongoose.Types.ObjectId(to)],
+                $all: [roomId],
             },
+            createdAt: { $gte: userJoinedDate?.createdAt },
         })
             .populate({ path: 'sender', select: 'username' })
             .sort({ updatedAt: 1 });
         const roomMessages = messages.map((msg) => {
             return {
-                fromSelf: msg.sender._id.toString() === from.toString(),
+                fromSelf: msg.sender._id.toString() === userId.toString(),
                 message: msg.message.text,
                 sender: msg.sender.username,
             };

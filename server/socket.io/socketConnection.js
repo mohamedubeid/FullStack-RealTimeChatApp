@@ -6,9 +6,11 @@ const {
     errorHandler,
     sendRoomMessage,
     joinRoom,
+    leaveRoom,
 } = require('./socketHandler/index');
 
 global.onlineUsers = new Map();
+
 const onConnection = async (socket) => {
     checkUserMiddleware(socket);
     onlineUsers.set(socket.userId.toString(), socket.id);
@@ -24,8 +26,11 @@ const onConnection = async (socket) => {
     console.log('connection', onlineUsers);
 
     socket.on('send-msg', sendMessage);
+    //room listeners
     socket.on('join-room', joinRoom);
     socket.on('send-room-msg', sendRoomMessage);
+    socket.on('leave-room', leaveRoom);
+
     socket.on('disconnect', socketDisconnect);
     socket.on('error', errorHandler);
 };

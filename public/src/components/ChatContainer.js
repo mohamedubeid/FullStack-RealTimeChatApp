@@ -6,7 +6,7 @@ import axios from 'axios';
 import { getUserMessagesRoute, getRoomMessagesRoute } from '../utils/APIRoutes';
 import { useNavigate } from 'react-router-dom';
 
-export default function ChatContainer({ currentChat, socket }) {
+export default function ChatContainer({ currentChat, socket, removeRoom }) {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [arrivalMessage, setArrivalMessage] = useState();
@@ -45,22 +45,10 @@ export default function ChatContainer({ currentChat, socket }) {
     }, [currentChat]);
 
     useEffect(() => {
-        console.log(
-            'this is currentChat in receive message userEffect',
-            currentChat
-        );
         socket.current.on(
             'msg-receive',
             ({ message, sender, senderUsername }) => {
                 const current = JSON.parse(localStorage.getItem('currentChat'));
-                console.log(
-                    'from: ',
-                    sender,
-                    'message: ',
-                    message,
-                    ' currentChat._id: ',
-                    current._id
-                );
                 if (sender === current._id) {
                     setArrivalMessage({
                         fromSelf: false,
@@ -72,7 +60,6 @@ export default function ChatContainer({ currentChat, socket }) {
         );
 
         socket.current.on('disconnect', (reason) => {
-            console.log(reason, 'this is err from chatContainer');
             if (reason === 'io server disconnect') {
                 localStorage.removeItem('token');
                 navigate('/login');
@@ -105,7 +92,11 @@ export default function ChatContainer({ currentChat, socket }) {
         scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
     const handleLeaveRoom = () => {
-        console.log('leaveRoom');
+        socket.current.emit('leave-room', {
+            roomId: currentChat._id,
+            room: currentChat.roomId.room,
+        });
+        removeRoom(currentChat._id);
     };
     return (
         <Container>

@@ -28,10 +28,14 @@ export default function Contacts({
     const handleSubmit = async () => {
         try {
             if (room !== '') {
-                socket.current.emit('join-room', room);
-                const newRoomList = [...rooms, { roomId: { room: room } }];
-                setRoomList(newRoomList);
-                setRoom('');
+                socket.current.emit('join-room', room, (responseData) => {
+                    const newRoomList = [
+                        ...rooms,
+                        { roomId: { _id: responseData, room: room } },
+                    ];
+                    setRoomList(newRoomList);
+                    setRoom('');
+                });
             }
         } catch (error) {
             console.log(error);
